@@ -31,20 +31,29 @@
       <header class="heart-panel-head"><h2 id="catalog-title">目录</h2></header>
       <div class="heart-catalog"><div class="heart-catalog-group"></div></div>
     </section>
-    <section class="heart-stage" aria-label="作品舞台">
+    <div class="heart-center">
+      <section class="heart-stage" aria-label="作品舞台">
+        <div class="heart-empty" hidden><p>暂无视频</p></div>
+        <section class="heart-spotlight" aria-label="作品预览" hidden>
+          <div class="heart-focus-frame">
+            <div class="heart-focus-media">
+              <button type="button" class="heart-original" aria-label="查看原画幅"><img alt=""></button>
+            </div>
+          </div>
+        </section>
+        <footer class="heart-stage-foot">
+          <div></div>
+          <div class="heart-stage-middle"></div>
+          <div></div>
+        </footer>
+      </section>
       <div class="heart-text-flow" tabindex="0" aria-label="正文" hidden>
         <article class="heart-story-sheet"><header><h3></h3></header><div class="heart-story-body"></div></article>
       </div>
-      <div class="heart-empty" hidden><p>暂无视频</p></div>
-      <section class="heart-spotlight" data-media-kind="image" aria-label="作品预览" hidden>
-        <div class="heart-focus-frame">
-          <div class="heart-focus-media">
-            <button type="button" class="heart-original" aria-label="查看原画幅"><img alt=""></button>
-          </div>
-          <div class="heart-focus-caption"><strong></strong></div>
-        </div>
+      <section class="heart-prompt" aria-label="提示词" hidden>
+        <details open><summary>图片提示词</summary><pre tabindex="0"></pre></details>
       </section>
-    </section>
+    </div>
     <aside class="heart-inspector" aria-labelledby="inspector-title">
       <header class="heart-panel-head"><h2 id="inspector-title">详情</h2></header>
       <div class="heart-inspector-body">
@@ -93,9 +102,9 @@
   const dawn = harbor('#c59195','#485772','#e8cab9');
   const entries = [
     {label:'故事', items:[{name:'本集正文', kind:'剧本', text:'末班渡船靠岸前，港口只留着一盏灯。她把装着钥匙的信封递给船长，请他在潮水涨起来之前送到对岸。'}]},
-    {label:'资产', items:[{name:'旧码头', kind:'场景', image:dusk}, {name:'晨雾中的渡口', kind:'场景', image:dawn}]},
+    {label:'资产', items:[{name:'旧码头', kind:'场景', image:dusk, prompt:'傍晚的石砌渡口，暖光落向平静的水面。保留远岸轮廓及画面左侧亮灯的房间。'}, {name:'晨雾中的渡口', kind:'场景', image:dawn, prompt:'清晨的渡口，同一条岸线与船道。浅雾停在水面上，低角度天光照亮远岸。'}]},
     {label:'分镜', items:[{name:'渡船靠岸', kind:'片段', text:'镜头 1 · 0–3 秒\n远景。渡船沿岸线靠近，码头的灯在水面晃动。\n\n镜头 2 · 3–6 秒\n特写。信封从手中递出。'}]},
-    {label:'成图', items:[{name:'灯下交接', kind:'分镜图', image:dawn}]},
+    {label:'成图', items:[{name:'灯下交接', kind:'分镜图', image:dawn, prompt:'横向构图，船尾留在下方。画面左侧保留两个人停留和递交信封的空间。'}]},
     {label:'视频', items:[{name:'渡船靠岸', kind:'未生成'}]},
   ];
   $('.heart-background').src = dusk;
@@ -128,20 +137,23 @@
   }
 
   function selectItem(index) {
-    const {name,kind,image,text} = entries[step].items[index];
+    const {name,kind,image,text,prompt} = entries[step].items[index];
     document.querySelectorAll('.heart-catalog-item').forEach((row,i) => i === index ? row.setAttribute('aria-current','true') : row.removeAttribute('aria-current'));
     const backdrop = $('.heart-backdrop-media');
     backdrop.hidden = !image;
     $('.heart-spotlight').hidden = !image;
     $('.heart-text-flow').hidden = !text;
     $('.heart-empty').hidden = !!(text || image);
+    $('.heart-center').dataset.reading = String(!!text);
+    $('.heart-prompt').hidden = !prompt;
+    $('.heart-prompt pre').textContent = prompt || '';
+    $('.heart-stage-middle').textContent = name;
     $('.heart-detail-heading h3').textContent = name;
     $('.heart-detail-heading span').textContent = kind;
     $('.heart-version-details').hidden = !image;
     $('.heart-version-details dd').textContent = '3:2';
     if (image) {
       backdrop.src = openOriginal.querySelector('img').src = original.src = image;
-      $('.heart-focus-caption strong').textContent = name;
     }
     if (text) {
       $('.heart-story-sheet h3').textContent = name;
