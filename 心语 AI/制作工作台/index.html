@@ -52,12 +52,17 @@
       </div>
       <section class="heart-prompt" aria-label="提示词" hidden>
         <details open><summary>图片提示词</summary><pre tabindex="0"></pre></details>
+        <div class="heart-asset-editor" hidden>
+          <label class="field asset-image-node-prompt"><span>图片提示词</span><textarea rows="5"></textarea></label>
+        </div>
+        <div class="heart-prompt-actions" hidden><button type="button" data-heart="finish-asset">完成编辑</button></div>
       </section>
     </div>
     <aside class="heart-inspector" aria-labelledby="inspector-title">
       <header class="heart-panel-head"><h2 id="inspector-title">详情</h2></header>
       <div class="heart-inspector-body">
         <div class="heart-detail-heading"><span></span><h3></h3></div>
+        <div class="heart-inspector-controls"><button type="button" data-edit-asset>编辑资产</button></div>
         <details class="heart-version-details"><summary>参数</summary><dl><div><dt>画幅</dt><dd></dd></div></dl></details>
       </div>
     </aside>
@@ -108,7 +113,7 @@
     {label:'视频', items:[{name:'渡船靠岸', kind:'未生成'}]},
   ];
   $('.heart-background').src = dusk;
-  let step = 1;
+  let step = 1, selectedItem = 0;
   const tabs = entries.map(({label}, index) => {
     const button = Object.assign(document.createElement('button'), {className:'studio-stage-tab', textContent:label});
     button.addEventListener('click', () => selectStep(index));
@@ -118,6 +123,22 @@
   const openOriginal = $('.heart-original');
   const original = $('.heart-original-image');
   openOriginal.addEventListener('click', () => $('.heart-settings').showModal());
+  const promptInput = $('.heart-asset-editor textarea');
+  function setEditing(editing) {
+    $('.heart-asset-editor').hidden = !editing;
+    $('.heart-prompt-actions').hidden = !editing;
+    $('.heart-prompt details').hidden = editing;
+    $('[data-edit-asset]').hidden = editing || step !== 1;
+  }
+  $('[data-edit-asset]').addEventListener('click', () => {
+    setEditing(true);
+    promptInput.focus();
+  });
+  $('[data-heart="finish-asset"]').addEventListener('click', () => {
+    entries[step].items[selectedItem].prompt = promptInput.value;
+    selectItem(selectedItem);
+    $('[data-edit-asset]').focus();
+  });
 
   function selectStep(index) {
     step = index;
@@ -137,7 +158,9 @@
   }
 
   function selectItem(index) {
+    selectedItem = index;
     const {name,kind,image,text,prompt} = entries[step].items[index];
+    setEditing(false);
     document.querySelectorAll('.heart-catalog-item').forEach((row,i) => i === index ? row.setAttribute('aria-current','true') : row.removeAttribute('aria-current'));
     const backdrop = $('.heart-backdrop-media');
     backdrop.hidden = !image;
@@ -145,8 +168,9 @@
     $('.heart-text-flow').hidden = !text;
     $('.heart-empty').hidden = !!(text || image);
     $('.heart-center').dataset.reading = String(!!text);
-    $('.heart-prompt').hidden = !prompt;
+    $('.heart-prompt').hidden = !prompt && step !== 1;
     $('.heart-prompt pre').textContent = prompt || '';
+    promptInput.value = prompt || '';
     $('.heart-stage-middle').textContent = name;
     $('.heart-detail-heading h3').textContent = name;
     $('.heart-detail-heading span').textContent = kind;
