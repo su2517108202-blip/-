@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN" data-studio-default>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>心语 AI · 项目库</title>
+<link rel="stylesheet" href="studio-frame.css">
+<style>
+  * { box-sizing: border-box; }
+  :root { --ink:#302925; --muted:#675952; --accent:#a65a46; --on-accent:#fff8ed; }
+  body { margin: 0; }
+  button,input { font: inherit; }
+  button { cursor: pointer; }
+  .studio-page { width: 100%; max-width: 1320px; margin-inline: auto; }
+  .catalog { display:grid; grid-template-columns:clamp(160px,18vw,215px) minmax(0,1fr); gap:12px; }
+  .catalog > * { min-width:0; padding:12px; align-self:start; border:1px solid var(--studio-line); border-radius:var(--studio-panel-radius); background:var(--studio-sheet); }
+  .catalog h2 { margin:0 0 9px; font-size:15px; }
+  .catalog button { display:block; width:100%; padding:8px; text-align:left; border:0; border-radius:6px; background:transparent; color:var(--ink); }
+  .catalog button[aria-pressed="true"] { background:var(--studio-selected); color:var(--accent); }
+  .catalog input { width:100%; padding:8px; border:1px solid var(--studio-line); background:var(--studio-field); }
+  .projects { margin:9px 0 0; padding:0; list-style:none; }
+  .projects li { display:flex; align-items:center; justify-content:space-between; gap:5px; min-height:47px; border-top:1px solid var(--studio-line); }
+  .projects a { color:var(--accent); }
+  .projects :is(span,a) { font-size:13px; }
+  @media (max-width:650px) { .catalog { grid-template-columns:minmax(0,1fr); } }
+</style>
+<body>
+  <div class="studio-frame" data-frame-page="projects">
+    <header class="studio-dock">
+      <span class="studio-dock-brand"><strong>心语 AI</strong></span>
+      <nav class="studio-destinations" aria-label="工作室导航"><button class="studio-destination" aria-current="page">项目库</button></nav>
+      <div></div>
+    </header>
+    <main class="studio-page">
+      <header class="studio-page-heading"><h1>项目库</h1></header>
+      <div class="catalog">
+        <section aria-labelledby="folders"><h2 id="folders">目录</h2>
+          <button type="button" data-folder="all" aria-pressed="true">全部</button>
+          <button type="button" data-folder="drama" aria-pressed="false">短剧</button>
+          <button type="button" data-folder="draft" aria-pressed="false">草稿</button>
+        </section>
+        <section aria-label="项目结果">
+          <input type="search" aria-label="搜索项目" placeholder="搜索项目">
+          <ul class="projects"></ul>
+          <p role="status" hidden>没有匹配的项目</p>
+        </section>
+      </div>
+    </main>
+  </div>
+<script>
+  const projects = [{title:'归港',folder:'drama',label:'资产与分镜',active:true},{title:'山路来信',folder:'draft',label:'故事草稿'}];
+  const buttons = [...document.querySelectorAll('[data-folder]')];
+  const input = document.querySelector('input');
+  const list = document.querySelector('.projects');
+  const empty = document.querySelector('[role="status"]');
+  let folder = 'all';
+  function render() {
+    buttons.forEach(button => button.setAttribute('aria-pressed',String(button.dataset.folder === folder)));
+    const results = projects.filter(project => (folder === 'all' || project.folder === folder) && project.title.includes(input.value.trim()));
+    list.replaceChildren(...results.map(({title,label,active}) => {
+      const row = document.createElement('li');
+      const name = document.createElement('strong');
+      name.textContent = title;
+      const status = document.createElement(active?'a':'span');
+      if (active) status.href = 'index.html';
+      status.textContent = label;
+      row.append(name,status);
+      return row;
+    }));
+    empty.hidden = !!results.length;
+  }
+  buttons.forEach(button => button.addEventListener('click',()=>{folder=button.dataset.folder;render()}));
+  input.addEventListener('input',render);
+  render();
+</script>
+</body>
+</html>
