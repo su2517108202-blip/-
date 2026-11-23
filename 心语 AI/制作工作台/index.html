@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>制作工作台 · 归港</title>
+<link rel="stylesheet" href="heart-stage.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.55 system-ui, sans-serif; }
+  button { color: inherit; font: inherit; cursor: pointer; }
+  .heart-workspace { --studio-type: system-ui, sans-serif; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+  .studio-project-line { display: grid; flex: none; align-items: center; }
+  .studio-project-identity { display: flex; align-items: center; min-width: 0; }
+  .studio-project-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .studio-stage-tab { display: flex; align-items: center; background: transparent; }
+  .heart-inspector-body summary { cursor: pointer; }
+  .heart-spotlight[data-media-kind="image"] .heart-focus-media > img { position: absolute; inset: 0; }
+  @media (max-width: 980px) { .heart-workspace { overflow: auto; } }
+</style>
+<main class="project-studio heart-workspace">
+  <div class="heart-backdrop" aria-hidden="true">
+    <img class="heart-background" alt="">
+    <img class="heart-backdrop-media" alt="" hidden>
+  </div>
+  <header class="studio-project-line">
+    <div class="studio-project-identity"><strong class="studio-project-title">归港</strong><span class="heart-episode">第1集</span></div>
+    <nav class="studio-stage-tabs heart-steps" aria-label="制作流程"></nav>
+  </header>
+  <div class="heart-desk">
+    <section class="heart-library" aria-labelledby="catalog-title">
+      <header class="heart-panel-head"><h2 id="catalog-title">目录</h2></header>
+      <div class="heart-catalog"><div class="heart-catalog-group"></div></div>
+    </section>
+    <section class="heart-stage" aria-label="作品舞台">
+      <div class="heart-text-flow" tabindex="0" aria-label="正文" hidden>
+        <article class="heart-story-sheet"><header><h3></h3></header><div class="heart-story-body"></div></article>
+      </div>
+      <div class="heart-empty" hidden><p>暂无视频</p></div>
+      <section class="heart-spotlight" data-media-kind="image" aria-label="作品预览" hidden>
+        <div class="heart-focus-frame">
+          <div class="heart-focus-media">
+            <button type="button" class="heart-original" aria-label="查看原画幅"><img alt=""></button>
+          </div>
+          <div class="heart-focus-caption"><strong></strong></div>
+        </div>
+      </section>
+    </section>
+    <aside class="heart-inspector" aria-labelledby="inspector-title">
+      <header class="heart-panel-head"><h2 id="inspector-title">详情</h2></header>
+      <div class="heart-inspector-body">
+        <div class="heart-detail-heading"><span></span><h3></h3></div>
+        <details class="heart-version-details"><summary>参数</summary><dl><div><dt>画幅</dt><dd></dd></div></dl></details>
+      </div>
+    </aside>
+  </div>
+  <dialog class="heart-settings" aria-label="原画">
+    <header><h2>原画</h2><form method="dialog"><button>关闭</button></form></header>
+    <img class="heart-original-image" alt="" style="height:auto;object-fit:contain;background:transparent">
+  </dialog>
+</main>
+<script>
+  const $ = selector => document.querySelector(selector);
+  function harbor(sky, water, sunset) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 960;
+    canvas.height = 640;
+    const context = canvas.getContext('2d');
+    const gradient = context.createLinearGradient(0, 0, 0, 640);
+    for (const [position, color] of [[0, sky], [.52, sunset], [.53, water], [1, '#213538']]) gradient.addColorStop(position, color);
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 960, 640);
+    context.fillStyle = '#fff0c1';
+    context.beginPath();
+    context.arc(666, 241, 40, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = water;
+    context.beginPath();
+    context.moveTo(0, 333);
+    for (const [x, y] of [[102, 251],[230, 297],[339, 231],[502, 332],[730, 322],[836, 280],[960, 292],[960, 358],[0, 358]]) context.lineTo(x, y);
+    context.fill();
+    context.fillStyle = '#fce9ba';
+    context.fillRect(147, 296, 27, 18);
+    for (let y = 363; y < 620; y += 11) {
+      const width = 24 + (y * 19 % 155);
+      const x = 635 - width / 2 + (y * 17 % 72);
+      context.globalAlpha = .15 + (y % 19) / 90;
+      context.fillRect(x, y, width, 2);
+    }
+    return canvas.toDataURL('image/webp', .88);
+  }
+
+  const dusk = harbor('#627c8b','#375258','#e5b38b');
+  const dawn = harbor('#c59195','#485772','#e8cab9');
+  const entries = [
+    {label:'故事', items:[{name:'本集正文', kind:'剧本', text:'末班渡船靠岸前，港口只留着一盏灯。她把装着钥匙的信封递给船长，请他在潮水涨起来之前送到对岸。'}]},
+    {label:'资产', items:[{name:'旧码头', kind:'场景', image:dusk}, {name:'晨雾中的渡口', kind:'场景', image:dawn}]},
+    {label:'分镜', items:[{name:'渡船靠岸', kind:'片段', text:'镜头 1 · 0–3 秒\n远景。渡船沿岸线靠近，码头的灯在水面晃动。\n\n镜头 2 · 3–6 秒\n特写。信封从手中递出。'}]},
+    {label:'成图', items:[{name:'灯下交接', kind:'分镜图', image:dawn}]},
+    {label:'视频', items:[{name:'渡船靠岸', kind:'未生成'}]},
+  ];
+  $('.heart-background').src = dusk;
+  let step = 1;
+  const tabs = entries.map(({label}, index) => {
+    const button = Object.assign(document.createElement('button'), {className:'studio-stage-tab', textContent:label});
+    button.addEventListener('click', () => selectStep(index));
+    $('.heart-steps').append(button);
+    return button;
+  });
+  const openOriginal = $('.heart-original');
+  const original = $('.heart-original-image');
+  openOriginal.addEventListener('click', () => $('.heart-settings').showModal());
+
+  function selectStep(index) {
+    step = index;
+    tabs.forEach((tab, i) => i === step ? tab.setAttribute('aria-current','step') : tab.removeAttribute('aria-current'));
+    const group = $('.heart-catalog-group');
+    const rows = entries[step].items.map((item, i) => {
+      const row = Object.assign(document.createElement('button'), {className:'heart-catalog-item'});
+      const thumb = Object.assign(document.createElement('span'), {className:'heart-thumb'});
+      if (item.image) thumb.append(Object.assign(document.createElement('img'), {src:item.image, alt:''}));
+      const title = Object.assign(document.createElement('strong'), {textContent:item.name});
+      row.append(thumb, title);
+      row.addEventListener('click', () => selectItem(i));
+      return row;
+    });
+    group.replaceChildren(...rows);
+    selectItem(0);
+  }
+
+  function selectItem(index) {
+    const {name,kind,image,text} = entries[step].items[index];
+    document.querySelectorAll('.heart-catalog-item').forEach((row,i) => i === index ? row.setAttribute('aria-current','true') : row.removeAttribute('aria-current'));
+    const backdrop = $('.heart-backdrop-media');
+    backdrop.hidden = !image;
+    $('.heart-spotlight').hidden = !image;
+    $('.heart-text-flow').hidden = !text;
+    $('.heart-empty').hidden = !!(text || image);
+    $('.heart-detail-heading h3').textContent = name;
+    $('.heart-detail-heading span').textContent = kind;
+    $('.heart-version-details').hidden = !image;
+    $('.heart-version-details dd').textContent = '3:2';
+    if (image) {
+      backdrop.src = openOriginal.querySelector('img').src = original.src = image;
+      $('.heart-focus-caption strong').textContent = name;
+    }
+    if (text) {
+      $('.heart-story-sheet h3').textContent = name;
+      $('.heart-story-body').textContent = text;
+    }
+  }
+  selectStep(step);
+</script>
+</html>
